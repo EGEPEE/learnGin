@@ -16,8 +16,9 @@ func main() {
 
 	v1 := router.Group("/api/v1/userapi")
 	{
-		v1.GET("/", controllers.FetchAllUser)
-		v1.POST("/create", controllers.CreateUser)
+		v1.GET("/", controllers.FetchAll)
+		v1.POST("/create", controllers.Create)
+		v1.POST("/update", controllers.Update)
 	}
 
 	router.Run()
