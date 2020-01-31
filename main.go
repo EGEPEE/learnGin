@@ -14,11 +14,9 @@ func init() {
 func main() {
 	router := gin.Default()
 
-	v1 := router.Group("/api/v1/userapi")
+	userapi := router.Group("/api/usr_userapi")
 	{
-		v1.GET("/", controllers.FetchAll)
-		v1.POST("/create", controllers.Create)
-		v1.POST("/update", controllers.Update)
+		userapi.POST("/check_phonenumber", controllers.CheckPhoneNumber)
 	}
 
 	router.Run()
