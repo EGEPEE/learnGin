@@ -24,7 +24,7 @@ func CheckPhoneNumber(c *gin.Context) {
 	noTelepon := c.PostForm("no_telepon")
 
 	if err := repository.DB.Table("tab_master_customers").Where("no_telepon = ?", noTelepon).First(&user).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "mrr != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "False"})
 	
 			return
