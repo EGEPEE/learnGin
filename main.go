@@ -16,7 +16,6 @@ func main() {
 	userapi := router.Group("/api/usr_userapi")
 	{
 		userapi.GET("/get_user", controllers.GetUser)
-		userapi.POST("/check_phonenumber", controllers.CheckPhoneNumber)
 	}
 
 	router.Run()
