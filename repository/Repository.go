@@ -15,9 +15,10 @@ func GetUser(c *[]models.CustomerMain) (err error) {
 }
 
 func CheckPhone(c *models.CustomerCheckPhone) (err error) {
-	if err := DB.Table(nameTable["masterCustomer"]).Select("no_telepon, nama, name").Find(&c).Error; err != nil {
+	if err := DB.Table(nameTable["masterCustomer"]).Select("no_telepon, nama, name, otp_input, role_user").Find(&c).Error; err != nil {
 		return err
 	}
 
 	return nil
 }
+

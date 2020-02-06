@@ -8,9 +8,10 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	v1 := r.Group("/api/usr_userapi")
+	user := r.Group("/api/usr_userapi")
 	{
-		v1.GET("/get_user", controllers.GetUser)
+		user.GET("/get_user", controllers.GetUser)
+		user.POST("/check_phonenumber", controllers.CheckPhone)
 	}
 
 	return r
