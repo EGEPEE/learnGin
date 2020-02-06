@@ -2,18 +2,12 @@ package migrations
 
 import (
 	"time"
-
-	"github.com/jinzhu/gorm"
 )
 
-type Model struct {
-	Name     string    `gorm:"primary_key" json:"name"`
-	Creation time.Time `json:"creation"`
-	Modified time.Time `json:"modified"`
-}
-
-type User struct {
-	gorm.Model
+type TabMasterCustomers struct {
+	Name         string    `gorm:"primary_key" json:"name"`
+	Creation     time.Time `json:"creation"`
+	Modified     time.Time `json:"modified"`
 	ModifiedBy   string    `gorm:"type:varchar(140)" json:"modified_by"`
 	Owner        string    `gorm:"type:varchar(140)" json:"owner"`
 	Docstatus    int       `json:"docstatus"`

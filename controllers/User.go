@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/EGEPEE/learnGin/models"
@@ -9,17 +8,40 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CheckPhoneNumber(c *gin.Context) {
-	var user models.TabMasterCustomer
-	noTelepon := c.PostForm("no_telepon")
-	repository.DB.Where("no_telepon = ?", noTelepon).First(&user)
-	fmt.Printf(user.NoTelepon)
-
-	if len(user.NoTelepon) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "True"})
+func GetUser(c *gin.Context) {
+	var user []models.CustomerMain
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "False"})
 
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "False", "id": user.Name, "no_telepon": user.NoTelepon, "role_user": user.RoleUser, "otp_input": user.OtpInput})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "True", "data": user})
+}
+
+func CheckPhoneNumber(c *gin.Context) {
+	var user models.CustomerDetail
+	noTelepon := c.PostForm("no_telepon")
+
+	if err := repository.DB.Table("tab_master_customers").Where("no_telepon = ?", noTelepon).First(&user).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "mrr != nil {
+			c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "False"})
+	
+			return
+		}
+	
+		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "True", "data": user})
+	}
+	
+	func CheckPhoneNumber(c *gin.Context) {
+		var user models.CustomerDetail
+		noTelepon := c.PostForm("no_telepon")
+	
+		if err := repository.DB.Table("tab_master_customers").Where("no_telepon = ?", noTelepon).First(&user).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "True"})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "False", "no_telepon": user.NoTelepon, "role_user": user.RoleUser, "otp_input": user.OtpInput})
 }
