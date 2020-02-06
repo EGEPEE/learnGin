@@ -1,9 +1,8 @@
 package main
 
 import (
-	"github.com/EGEPEE/learnGin/controllers"
+	"github.com/EGEPEE/learnGin/delivery/restapi"
 	"github.com/EGEPEE/learnGin/repository"
-	"github.com/gin-gonic/gin"
 )
 
 func init() {
@@ -11,12 +10,8 @@ func init() {
 }
 
 func main() {
-	router := gin.Default()
 
-	userapi := router.Group("/api/usr_userapi")
-	{
-		userapi.GET("/get_user", controllers.GetUser)
-	}
-
-	router.Run()
+	r := restapi.SetupRouter()
+	// running
+	r.Run()
 }

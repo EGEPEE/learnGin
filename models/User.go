@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type CustomerTime struct {
+type TimeManage struct {
 	Creation *time.Time `json:"creation"`
 	Modified *time.Time `json:"modified"`
 }
@@ -24,8 +24,13 @@ type CustomerDetail struct {
 	Email        *string    `json:"email"`
 	UnitDefault  *string    `json:"unit_default"`
 	BankAccount  *string    `json:"bank_account"`
-	OtpInput     *string    `json:"otp_input"`
-	TokenFb      *string    `json:"token_fb,omitempty"`
-	RoleUser     *string    `json:"role_user"`
+	TokenFb      *string    `json:"token_fb"`
+	NamaSupplier *string    `json:"nama_supplier"`
+	CustomerCheckPhone
+}
+
+type CustomerCheckPhone struct {
+	RoleUser *string `json:"role_user"`
+	OtpInput *string `json:"otp_input"`
 	CustomerMain
 }
