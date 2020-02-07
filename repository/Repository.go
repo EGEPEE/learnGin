@@ -22,3 +22,10 @@ func CheckPhone(c *models.CustomerCheckPhone) (err error) {
 	return nil
 }
 
+func UserRegister(c *models.CustomerRegister) (err error) {
+	if err := DB.Table(nameTable["masterCustomer"]).Create(&c).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
