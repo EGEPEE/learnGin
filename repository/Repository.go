@@ -1,6 +1,8 @@
 package repository
 
-import "github.com/EGEPEE/learnGin/models"
+import (
+	"github.com/EGEPEE/learnGin/models"
+)
 
 var nameTable = map[string]string{
 	"masterCustomer": "tab_master_customers",
@@ -31,7 +33,15 @@ func DeleteUser(c *models.CustomerMain, noTelepon string) (err error) {
 }
 
 func CheckPin(c *models.CustomerPrivate, noTelepon, pin string) (err error) {
-	if err := DB.Table(nameTable["masterCustomer"]).Select("no_telepon, pin").Where("pin = ? and no_telepon = ?", pin, noTelepon).Error; err != nil {
+	if err := DB.Table(nameTable["masterCustomer"]).Select("no_telepon, pin").Where("no_telepon = ?", noTelepon).First(&c).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UserRegister(c *models.CustomerRegister) (err error) {
+	if err := DB.Table(nameTable["masterCustomer"]).Create(&c).Error; err != nil {
 		return err
 	}
 
@@ -39,7 +49,7 @@ func CheckPin(c *models.CustomerPrivate, noTelepon, pin string) (err error) {
 }
 
 func SetPin(c *models.CustomerPrivate, noTelepon, pin string) (err error) {
-	if err := DB.Table(nameTable["masterCustomer"]).Where("no_telepon = ? and pin = ?", noTelepon, pin).Update("pin", pin).Error; err != nil {
+	if err := DB.Table(nameTable["masterCustomer"]).Where("no_telepon = ?", noTelepon).Update("pin", pin).Error; err != nil {
 		return err
 	}
 
