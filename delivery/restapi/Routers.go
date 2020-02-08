@@ -10,8 +10,11 @@ func SetupRouter() *gin.Engine {
 
 	user := r.Group("/api/usr_userapi")
 	{
-		user.GET("/get_user", controllers.GetUser)
+		user.GET("/get_all_account", controllers.GetAllAcount)
 		user.POST("/check_phonenumber", controllers.CheckPhone)
+		user.POST("/delete_account", controllers.DeleteAccount)
+		user.POST("/check_pin", controllers.CheckPin)
+		user.POST("/set_pin", controllers.SetPin)
 	}
 
 	return r
