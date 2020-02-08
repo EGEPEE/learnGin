@@ -48,8 +48,8 @@ func UserRegister(c *models.CustomerRegister) (err error) {
 	return nil
 }
 
-func SetPin(c *models.CustomerPrivate, noTelepon, pin string) (err error) {
-	if err := DB.Table(nameTable["masterCustomer"]).Where("no_telepon = ?", noTelepon).Update("pin", pin).Error; err != nil {
+func SetPin(c *models.CustomerPrivate, noTelepon string) (err error) {
+	if err := DB.Table(nameTable["masterCustomer"]).Where("no_telepon = ?", noTelepon).Update(&c).Error; err != nil {
 		return err
 	}
 

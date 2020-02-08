@@ -78,11 +78,15 @@ func CheckPin(c *gin.Context) {
 }
 
 func SetPin(c *gin.Context) {
-	var user models.CustomerPrivate
 	noTelepon := c.PostForm("no_telepon")
 	pin := c.PostForm("pin")
+	pin = helper.GCM_encrypt(os.Getenv("ENC_PWD"), pin, []byte(os.Getenv("ADD_AES")))
 
-	err := repository.SetPin(&user, noTelepon, pin)
+	cusPin := models.CustomerPrivate{Pin: pin}
+
+	c.BindJSON(&cusPin)
+
+	err := repository.SetPin(&cusPin, noTelepon)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Not Found"})
 
@@ -100,9 +104,9 @@ func Register(c *gin.Context) {
 
 	pwd := c.PostForm("meta_data")
 	pwd = helper.GCM_encrypt(os.Getenv("ENC_PWD"), pwd, []byte(os.Getenv("ADD_AES")))
-	cusPwd := models.CustomerPassword{MetaData: pwd}
+	cusPwd := models.CustomerPrivate{MetaData: pwd}
 
-	regis := models.CustomerRegister{CustomerMain: cusMain, CustomerPassword: cusPwd, Kecamatan: kec, TanggalLahir: c.PostForm("tanggal_lahir"), Latlong: c.PostForm("latlong"), UnitDefault: c.PostForm("unit_default"), TokenFb: c.PostForm("token_fb"), NamaSupplier: c.PostForm("nama_supplier"), RoleUser: c.PostForm("role_user"), OtpInput: c.PostForm("otp_input")}
+	regis := models.CustomerRegister{CustomerMain: cusMain, CustomerPrivate: cusPwd, Kecamatan: kec, TanggalLahir: c.PostForm("tanggal_lahir"), Latlong: c.PostForm("latlong"), UnitDefault: c.PostForm("unit_default"), TokenFb: c.PostForm("token_fb"), NamaSupplier: c.PostForm("nama_supplier"), RoleUser: c.PostForm("role_user"), OtpInput: c.PostForm("otp_input")}
 
 	c.BindJSON(&regis)
 	err := repository.UserRegister(&regis)
