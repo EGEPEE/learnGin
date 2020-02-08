@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"net/http"
+	"os"
 	"strings"
 
+	"github.com/EGEPEE/learnGin/delivery/helper"
 	"github.com/EGEPEE/learnGin/models"
 	"github.com/EGEPEE/learnGin/repository"
 	"github.com/gin-gonic/gin"
@@ -78,7 +80,7 @@ func CheckPin(c *gin.Context) {
 func SetPin(c *gin.Context) {
 	noTelepon := c.PostForm("no_telepon")
 	pin := c.PostForm("pin")
-	// pin = helper.GCM_encrypt(os.Getenv("ENC_PWD"), pin, []byte(os.Getenv("ADD_AES")))
+	pin = helper.GCM_encrypt(os.Getenv("ENC_PWD"), pin, []byte(os.Getenv("ADD_AES")))
 
 	cusPin := models.CustomerPrivate{Pin: pin}
 
@@ -101,7 +103,7 @@ func Register(c *gin.Context) {
 	kec = strings.NewReplacer("Kota ", "", "Kecamatan ", "").Replace(kec)
 
 	pwd := c.PostForm("meta_data")
-	// pwd = helper.GCM_encrypt(os.Getenv("ENC_PWD"), pwd, []byte(os.Getenv("ADD_AES")))
+	pwd = helper.GCM_encrypt(os.Getenv("ENC_PWD"), pwd, []byte(os.Getenv("ADD_AES")))
 	cusPwd := models.CustomerPrivate{MetaData: pwd}
 
 	regis := models.CustomerRegister{CustomerMain: cusMain, CustomerPrivate: cusPwd, Kecamatan: kec, TanggalLahir: c.PostForm("tanggal_lahir"), Latlong: c.PostForm("latlong"), UnitDefault: c.PostForm("unit_default"), TokenFb: c.PostForm("token_fb"), NamaSupplier: c.PostForm("nama_supplier"), RoleUser: c.PostForm("role_user"), OtpInput: c.PostForm("otp_input")}

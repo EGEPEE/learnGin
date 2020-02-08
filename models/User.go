@@ -47,3 +47,11 @@ type CustomerCheckPhone struct {
 	RoleUser string `json:"role_user"`
 	OtpInput string `json:"otp_input"`
 }
+
+type CustomerPin struct {
+	Pin string `json:"pin"`
+}
+
+type CustomerPassword struct {
+	MetaData string `json:"meta_data"`
+}

@@ -3,15 +3,12 @@ package helper
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
 	"encoding/hex"
-	"io"
 )
 
-func GCM_encrypt(key string, plaintext string, iv []byte, additionalData []byte) string {
+func GCM_encrypt(key string, plaintext string, additionalData []byte) string {
 
-	// iv := getIV()
-
+	iv := getIV()
 	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		panic(err.Error())
@@ -24,8 +21,9 @@ func GCM_encrypt(key string, plaintext string, iv []byte, additionalData []byte)
 	return hex.EncodeToString(ciphertext)
 }
 
-func GCM_decrypt(key string, ct string, iv []byte, additionalData []byte) string {
-	// iv := getIV()
+func GCM_decrypt(key string, ct string, additionalData []byte) string {
+
+	iv := getIV()
 
 	ciphertext, _ := hex.DecodeString(ct)
 	block, err := aes.NewCipher([]byte(key))
@@ -44,11 +42,7 @@ func GCM_decrypt(key string, ct string, iv []byte, additionalData []byte) string
 	return s
 }
 
-func GetIV() []byte {
-	iv := make([]byte, 12)
-	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		panic(err.Error())
-	}
-
+func getIV() []byte {
+	iv := []byte{233, 141, 164, 199, 171, 248, 138, 252, 178, 31, 29, 147}
 	return iv
 }
