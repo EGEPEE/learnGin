@@ -1,12 +1,14 @@
 package repository
 
-import "github.com/EGEPEE/learnGin/models"
+import (
+	"github.com/EGEPEE/learnGin/models"
+)
 
 var nameTable = map[string]string{
 	"masterCustomer": "tab_master_customers",
 }
 
-func GetUser(c *[]models.CustomerMain) (err error) {
+func GetAllAcount(c *[]models.CustomerMain) (err error) {
 	if err := DB.Table(nameTable["masterCustomer"]).Select("no_telepon, nama, name").Find(&c).Error; err != nil {
 		return err
 	}
@@ -14,8 +16,24 @@ func GetUser(c *[]models.CustomerMain) (err error) {
 	return nil
 }
 
-func CheckPhone(c *models.CustomerCheckPhone) (err error) {
-	if err := DB.Table(nameTable["masterCustomer"]).Select("no_telepon, nama, name, otp_input, role_user").Find(&c).Error; err != nil {
+func CheckPhone(c *models.CustomerCheckPhone, noTelepon string) (err error) {
+	if err := DB.Table(nameTable["masterCustomer"]).Select("no_telepon, nama, name, otp_input, role_user").Where("no_telepon = ?", noTelepon).First(&c).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteUser(c *models.CustomerMain, noTelepon string) (err error) {
+	if err := DB.Table(nameTable["masterCustomer"]).Where("no_telepon = ?", noTelepon).Delete(c).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func CheckPin(c *models.CustomerPrivate, noTelepon, pin string) (err error) {
+	if err := DB.Table(nameTable["masterCustomer"]).Select("no_telepon, pin").Where("no_telepon = ?", noTelepon).First(&c).Error; err != nil {
 		return err
 	}
 
@@ -24,6 +42,14 @@ func CheckPhone(c *models.CustomerCheckPhone) (err error) {
 
 func UserRegister(c *models.CustomerRegister) (err error) {
 	if err := DB.Table(nameTable["masterCustomer"]).Create(&c).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func SetPin(c *models.CustomerPrivate, noTelepon string) (err error) {
+	if err := DB.Table(nameTable["masterCustomer"]).Where("no_telepon = ?", noTelepon).Update(&c).Error; err != nil {
 		return err
 	}
 

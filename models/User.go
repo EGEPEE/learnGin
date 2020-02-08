@@ -25,7 +25,7 @@ type CustomerDetail struct {
 
 type CustomerRegister struct {
 	CustomerMain
-	CustomerPassword
+	CustomerPrivate
 	gorm.Model
 	Alamat       string `json:"alamat"`
 	Kecamatan    string `json:"kecamatan"`
@@ -38,12 +38,12 @@ type CustomerRegister struct {
 	OtpInput     string `json:"otp_input"`
 }
 
-type CustomerCheckPhone struct {
-	RoleUser *string `json:"role_user"`
-	OtpInput *string `json:"otp_input"`
-	CustomerMain
+type CustomerPrivate struct {
+	Pin      string `json:"pin"`
+	MetaData string `json:"meta_data"`
 }
 
-type CustomerPassword struct {
-	MetaData string `json:"meta_data"`
+type CustomerCheckPhone struct {
+	RoleUser string `json:"role_user"`
+	OtpInput string `json:"otp_input"`
 }

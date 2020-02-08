@@ -8,9 +8,9 @@ import (
 	"io"
 )
 
-func GCM_encrypt(key string, plaintext string, additionalData []byte) string {
+func GCM_encrypt(key string, plaintext string, iv []byte, additionalData []byte) string {
 
-	iv := getIV()
+	// iv := getIV()
 
 	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
@@ -24,8 +24,8 @@ func GCM_encrypt(key string, plaintext string, additionalData []byte) string {
 	return hex.EncodeToString(ciphertext)
 }
 
-func GCM_decrypt(key string, ct string, additionalData []byte) string {
-	iv := getIV()
+func GCM_decrypt(key string, ct string, iv []byte, additionalData []byte) string {
+	// iv := getIV()
 
 	ciphertext, _ := hex.DecodeString(ct)
 	block, err := aes.NewCipher([]byte(key))
@@ -44,7 +44,7 @@ func GCM_decrypt(key string, ct string, additionalData []byte) string {
 	return s
 }
 
-func getIV() []byte {
+func GetIV() []byte {
 	iv := make([]byte, 12)
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
 		panic(err.Error())
