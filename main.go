@@ -1,14 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"log"
-	"os"
 
-	"github.com/EGEPEE/learnGin/delivery/helper"
+	firebase "firebase.google.com/go"
 	"github.com/EGEPEE/learnGin/delivery/restapi"
 	"github.com/EGEPEE/learnGin/repository"
 	"github.com/joho/godotenv"
+	"google.golang.org/api/option"
 )
 
 func init() {
@@ -21,15 +21,15 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	iv := helper.GetIV()
-	enc := helper.GCM_encrypt(os.Getenv("ENC_PWD"), "aryadanu123", iv, []byte(os.Getenv("ADD_AES")))
-	dct := helper.GCM_decrypt(os.Getenv("ENC_PWD"), enc, iv, []byte(os.Getenv("ADD_AES")))
-	str := string(iv[:])
-	arr := []byte(str)
-	fmt.Println("iv :", iv)
-	fmt.Println("str :", str)
-	fmt.Println("arr :", arr)
-	fmt.Println("decrypt :", dct)
+	sa := option.WithCredentialsFile("./repository/firebase/ServiceAccountKey.json")
+	app, err := firebase.NewApp(context.Background(), nil, sa)
+
+	client, err := app.Firestore(context.Background())
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer client.Close()
+
 	r := restapi.SetupRouter()
 	// running
 	r.Run()

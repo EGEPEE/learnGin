@@ -2,45 +2,37 @@ package helper
 
 import (
 	"crypto/aes"
-	"crypto/cipher"
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"io"
 )
 
-func GCM_encrypt(key string, plaintext string, iv []byte, additionalData []byte) string {
-
-	// iv := getIV()
-
-	block, err := aes.NewCipher([]byte(key))
+func GCM_encrypt(key string, plaintext string) string {
+	c, err := aes.NewCipher([]byte(key))
 	if err != nil {
-		panic(err.Error())
+		fmt.Errorf("NewCipher(%d bytes) = %s", len(key), err)
+		panic(err)
 	}
-	aesgcm, err := cipher.NewGCM(block)
-	if err != nil {
-		panic(err.Error())
-	}
-	ciphertext := aesgcm.Seal(nil, iv, []byte(plaintext), additionalData)
-	return hex.EncodeToString(ciphertext)
+	out := make([]byte, len(plaintext))
+	c.Encrypt(out, []byte(plaintext))
+	fmt.Println(hex.EncodeToString(out))
+
+	return hex.EncodeToString(out)
 }
 
-func GCM_decrypt(key string, ct string, iv []byte, additionalData []byte) string {
-	// iv := getIV()
-
+func GCM_decrypt(key string, ct string) string {
 	ciphertext, _ := hex.DecodeString(ct)
-	block, err := aes.NewCipher([]byte(key))
+	c, err := aes.NewCipher([]byte(key))
 	if err != nil {
-		panic(err.Error())
+		fmt.Errorf("NewCipher(%d bytes) = %s", len(key), err)
+		panic(err)
 	}
-	aesgcm, err := cipher.NewGCM(block)
-	if err != nil {
-		panic(err.Error())
-	}
-	plaintext, err := aesgcm.Open(nil, iv, ciphertext, additionalData)
-	if err != nil {
-		panic(err.Error())
-	}
-	s := string(plaintext[:])
+	plain := make([]byte, len(ciphertext))
+	c.Decrypt(plain, ciphertext)
+	s := string(plain[:])
+	fmt.Printf("AES Decrypyed Text:  %s\n", s)
+	fmt.Println(s)
 	return s
 }
 
