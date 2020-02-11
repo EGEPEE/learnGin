@@ -37,6 +37,7 @@ type CustomerRegister struct {
 }
 
 type CustomerPrivate struct {
+	CustomerMain
 	Pin      string `json:"pin"`
 	MetaData string `json:"meta_data"`
 }

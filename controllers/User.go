@@ -65,11 +65,18 @@ func DeleteAccount(c *gin.Context) {
 func CheckPin(c *gin.Context) {
 	var user models.CustomerPrivate
 	noTelepon := c.PostForm("no_telepon")
-	pin := c.PostForm("pin")
 
-	err := repository.CheckPin(&user, noTelepon, pin)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Not Found", "data": "Pin salah"})
+	check_data := repository.CheckPrivate(&user, noTelepon)
+	if check_data != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Not Found", "data": "Data tidak ditemukan."})
+
+		return
+	}
+
+	pin := c.PostForm("pin")
+	pin = helper.GCM_encrypt(os.Getenv("ENC_PWD"), pin, []byte(os.Getenv("ADD_AES")))
+	if user.Pin != pin {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "message": "False", "data": "Pin salah"})
 
 		return
 	}
@@ -136,17 +143,14 @@ func ValidateOtp(c *gin.Context) {
 	otpGenerate := c.PostForm("otp_generate")
 
 	err := repository.CheckOtp(&otp, noTelepon, otpGenerate)
-
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "False"})
 
 		return
 	}
-
 	setOtp := models.CustomerCheck{OtpInput: "1"}
 
 	err = repository.SetOtpInput(&setOtp, noTelepon)
-
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "False"})
 
@@ -154,4 +158,23 @@ func ValidateOtp(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "True", "no_telepon": noTelepon})
+}
+
+func ForgotPin(c *gin.Context) {
+	pin := c.PostForm("pin")
+	pin = helper.GCM_encrypt(os.Getenv("ENC_PWD"), pin, []byte(os.Getenv("ADD_AES")))
+
+	cusMain := models.CustomerMain{NoTelepon: c.PostForm("no_telepon")}
+	cusCheck := models.CustomerPrivate{CustomerMain: cusMain, Pin: pin}
+
+	check_data := repository.CustomerCheckPrivate(&cusCheck)
+
+	if check_data != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Not Found", "data": "Data tidak ditemukan."})
+
+		return
+	}
+
+	c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "True", "data": "Dapat mengganti pin", "user": cusCheck.NoTelepon})
+
 }

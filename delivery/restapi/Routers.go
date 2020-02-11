@@ -1,23 +1,34 @@
 package restapi
 
 import (
+	"log"
+
 	"github.com/EGEPEE/learnGin/controllers"
 	"github.com/gin-gonic/gin"
+	jwt "github.com/kyfk/gin-jwt"
 )
 
 func SetupRouter() *gin.Engine {
-	r := gin.Default()
 
-	user := r.Group("/api/usr_userapi")
-	{
-		user.GET("/get_all_account", controllers.GetAllAcount)
-		user.POST("/check_phonenumber", controllers.CheckPhone)
-		user.POST("/delete_account", controllers.DeleteAccount)
-		user.POST("/check_pin", controllers.CheckPin)
-		user.POST("/set_pin", controllers.SetPin)
-		user.POST("/register", controllers.Register)
-		user.POST("/validate_otp", controllers.ValidateOtp)
+	auth, err := controllers.NewAuth()
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	return r
+	e := gin.New()
+
+	e.Use(jwt.ErrorHandler)
+	e.POST("/login", auth.Authenticate)
+	e.POST("/auth/refresh_token", auth.RefreshToken)
+
+	// User
+	e.GET("/get_all_account", controllers.Mobile(auth), controllers.GetAllAcount)
+	e.POST("/check_phonenumber", controllers.Mobile(auth), controllers.CheckPhone)
+	e.POST("/delete_account", controllers.Mobile(auth), controllers.DeleteAccount)
+	e.POST("/check_pin", controllers.Mobile(auth), controllers.CheckPin)
+	e.POST("/set_pin", controllers.Mobile(auth), controllers.SetPin)
+	e.POST("/register", controllers.Mobile(auth), controllers.Register)
+	e.POST("/forgot_pin", controllers.Mobile(auth), controllers.ForgotPin)
+
+	return e
 }
