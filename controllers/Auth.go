@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"os"
+
 	"github.com/EGEPEE/learnGin/models"
 
 	"github.com/gin-gonic/gin"
@@ -9,18 +11,19 @@ import (
 
 func NewAuth() (jwt.Auth, error) {
 	return jwt.New(jwt.Auth{
-		SecretKey: []byte("must change here"),
+		SecretKey: []byte(os.Getenv("TKN_JWT")),
 		Authenticator: func(c *gin.Context) (jwt.MapClaims, error) {
-			var req struct {
+			type req struct {
 				Username string `json:"username"`
 				Password string `json:"password"`
 			}
-			if err := c.ShouldBind(&req); err != nil {
+			request := req{Username: c.PostForm("username"), Password: c.PostForm("password")}
+			if err := c.ShouldBind(&request); err != nil {
 				return nil, jwt.ErrorAuthenticationFailed
 			}
 
-			u := models.NaiveDatastore[req.Username] // change here fetching from read datastore
-			if u.Password != req.Password {
+			u := models.NaiveDatastore[request.Username] // change here fetching from read datastore
+			if u.Password != request.Password {
 				return nil, jwt.ErrorAuthenticationFailed
 			}
 
@@ -29,6 +32,7 @@ func NewAuth() (jwt.Auth, error) {
 				"role":     u.Role,
 			}, nil
 		},
+
 		UserFetcher: func(c *gin.Context, claims jwt.MapClaims) (interface{}, error) {
 			username, ok := claims["username"].(string)
 			if !ok {
