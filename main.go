@@ -1,14 +1,13 @@
 package main
 
 import (
-	"context"
 	"log"
+	"net/http"
 
-	firebase "firebase.google.com/go"
 	"github.com/EGEPEE/learnGin/delivery/restapi"
+
 	"github.com/EGEPEE/learnGin/repository"
 	"github.com/joho/godotenv"
-	"google.golang.org/api/option"
 )
 
 func init() {
@@ -21,16 +20,10 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	sa := option.WithCredentialsFile("./repository/firebase/ServiceAccountKey.json")
-	app, err := firebase.NewApp(context.Background(), nil, sa)
+	e := restapi.SetupRouter()
 
-	client, err := app.Firestore(context.Background())
-	if err != nil {
-		log.Fatalln(err)
+	if err := http.ListenAndServe(":8000", e); err != nil {
+		log.Fatal(err)
 	}
-	defer client.Close()
 
-	r := restapi.SetupRouter()
-	// running
-	r.Run()
 }

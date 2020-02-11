@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"net/http"
+	"os"
 	"strings"
 
+	"github.com/EGEPEE/learnGin/delivery/helper"
 	"github.com/EGEPEE/learnGin/models"
 	"github.com/EGEPEE/learnGin/repository"
 	"github.com/gin-gonic/gin"
@@ -23,7 +25,7 @@ func GetAllAcount(c *gin.Context) {
 }
 
 func CheckPhone(c *gin.Context) {
-	var user models.CustomerCheckPhone
+	var user models.CustomerCheck
 	noTelepon := c.PostForm("no_telepon")
 	err := repository.CheckPhone(&user, noTelepon)
 
@@ -38,7 +40,7 @@ func CheckPhone(c *gin.Context) {
 
 func DeleteAccount(c *gin.Context) {
 	// Cek apakah data ada atau tidak
-	var userCheck models.CustomerCheckPhone
+	var userCheck models.CustomerCheck
 	noTelepon := c.PostForm("no_telepon")
 	check_data := repository.CheckPhone(&userCheck, noTelepon)
 
@@ -63,11 +65,18 @@ func DeleteAccount(c *gin.Context) {
 func CheckPin(c *gin.Context) {
 	var user models.CustomerPrivate
 	noTelepon := c.PostForm("no_telepon")
-	pin := c.PostForm("pin")
 
-	err := repository.CheckPin(&user, noTelepon, pin)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Not Found", "data": "Pin salah"})
+	check_data := repository.CheckPrivate(&user, noTelepon)
+	if check_data != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Not Found", "data": "Data tidak ditemukan."})
+
+		return
+	}
+
+	pin := c.PostForm("pin")
+	pin = helper.GCM_encrypt(os.Getenv("ENC_PWD"), pin, []byte(os.Getenv("ADD_AES")))
+	if user.Pin != pin {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "message": "False", "data": "Pin salah"})
 
 		return
 	}
@@ -78,7 +87,7 @@ func CheckPin(c *gin.Context) {
 func SetPin(c *gin.Context) {
 	noTelepon := c.PostForm("no_telepon")
 	pin := c.PostForm("pin")
-	// pin = helper.GCM_encrypt(os.Getenv("ENC_PWD"), pin, []byte(os.Getenv("ADD_AES")))
+	pin = helper.GCM_encrypt(os.Getenv("ENC_PWD"), pin, []byte(os.Getenv("ADD_AES")))
 
 	cusPin := models.CustomerPrivate{Pin: pin}
 
@@ -101,7 +110,7 @@ func Register(c *gin.Context) {
 	kec = strings.NewReplacer("Kota ", "", "Kecamatan ", "").Replace(kec)
 
 	pwd := c.PostForm("meta_data")
-	// pwd = helper.GCM_encrypt(os.Getenv("ENC_PWD"), pwd, []byte(os.Getenv("ADD_AES")))
+	pwd = helper.GCM_encrypt(os.Getenv("ENC_PWD"), pwd, []byte(os.Getenv("ADD_AES")))
 	cusPwd := models.CustomerPrivate{MetaData: pwd}
 
 	regis := models.CustomerRegister{CustomerMain: cusMain, CustomerPrivate: cusPwd, Kecamatan: kec, TanggalLahir: c.PostForm("tanggal_lahir"), Latlong: c.PostForm("latlong"), UnitDefault: c.PostForm("unit_default"), TokenFb: c.PostForm("token_fb"), NamaSupplier: c.PostForm("nama_supplier"), RoleUser: c.PostForm("role_user"), OtpInput: c.PostForm("otp_input")}
@@ -115,4 +124,22 @@ func Register(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "True"})
+}
+
+func ForgotPin(c *gin.Context) {
+	pin := c.PostForm("pin")
+	pin = helper.GCM_encrypt(os.Getenv("ENC_PWD"), pin, []byte(os.Getenv("ADD_AES")))
+
+	cusMain := models.CustomerMain{NoTelepon: c.PostForm("no_telepon")}
+	cusCheck := models.CustomerPrivate{CustomerMain: cusMain, Pin: pin}
+
+	check_data := repository.CustomerCheckPrivate(&cusCheck)
+
+	if check_data != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Not Found", "data": "Data tidak ditemukan."})
+
+		return
+	}
+
+	c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "True", "data": "Dapat mengganti pin", "user": cusCheck.NoTelepon})
 }

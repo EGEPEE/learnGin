@@ -16,7 +16,7 @@ func GetAllAcount(c *[]models.CustomerMain) (err error) {
 	return nil
 }
 
-func CheckPhone(c *models.CustomerCheckPhone, noTelepon string) (err error) {
+func CheckPhone(c *models.CustomerCheck, noTelepon string) (err error) {
 	if err := DB.Table(nameTable["masterCustomer"]).Select("no_telepon, nama, name, otp_input, role_user").Where("no_telepon = ?", noTelepon).First(&c).Error; err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func DeleteUser(c *models.CustomerMain, noTelepon string) (err error) {
 	return nil
 }
 
-func CheckPin(c *models.CustomerPrivate, noTelepon, pin string) (err error) {
+func CheckPrivate(c *models.CustomerPrivate, noTelepon string) (err error) {
 	if err := DB.Table(nameTable["masterCustomer"]).Select("no_telepon, pin").Where("no_telepon = ?", noTelepon).First(&c).Error; err != nil {
 		return err
 	}
@@ -54,4 +54,12 @@ func SetPin(c *models.CustomerPrivate, noTelepon string) (err error) {
 	}
 
 	return nil
+}
+
+func CustomerCheckPrivate(c *models.CustomerPrivate) (err error) {
+	if err := DB.Table(nameTable["masterCustomer"]).Where(&c).First(&c).Error; err != nil {
+		return err
+	}
+
+	return
 }
