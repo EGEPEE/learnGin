@@ -34,8 +34,6 @@ type CustomerRegister struct {
 	UnitDefault  string `json:"unit_default"`
 	TokenFb      string `json:"token_fb"`
 	NamaSupplier string `json:"nama_supplier"`
-	RoleUser     string `json:"role_user"`
-	OtpInput     string `json:"otp_input"`
 }
 
 type CustomerPrivate struct {
@@ -43,15 +41,11 @@ type CustomerPrivate struct {
 	MetaData string `json:"meta_data"`
 }
 
-type CustomerCheckPhone struct {
+type CustomerCheck struct {
 	RoleUser string `json:"role_user"`
 	OtpInput string `json:"otp_input"`
 }
 
-type CustomerPin struct {
-	Pin string `json:"pin"`
-}
-
-type CustomerPassword struct {
-	MetaData string `json:"meta_data"`
+type CustomerCheckOtp struct {
+	OtpGenerate string `json:"otp_generate"`
 }

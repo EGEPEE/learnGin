@@ -16,6 +16,7 @@ func SetupRouter() *gin.Engine {
 		user.POST("/check_pin", controllers.CheckPin)
 		user.POST("/set_pin", controllers.SetPin)
 		user.POST("/register", controllers.Register)
+		user.POST("/validate_otp", controllers.ValidateOtp)
 	}
 
 	return r

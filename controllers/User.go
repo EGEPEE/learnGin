@@ -25,7 +25,7 @@ func GetAllAcount(c *gin.Context) {
 }
 
 func CheckPhone(c *gin.Context) {
-	var user models.CustomerCheckPhone
+	var user models.CustomerCheck
 	noTelepon := c.PostForm("no_telepon")
 	err := repository.CheckPhone(&user, noTelepon)
 
@@ -40,7 +40,7 @@ func CheckPhone(c *gin.Context) {
 
 func DeleteAccount(c *gin.Context) {
 	// Cek apakah data ada atau tidak
-	var userCheck models.CustomerCheckPhone
+	var userCheck models.CustomerCheck
 	noTelepon := c.PostForm("no_telepon")
 	check_data := repository.CheckPhone(&userCheck, noTelepon)
 
@@ -106,7 +106,7 @@ func Register(c *gin.Context) {
 	pwd = helper.GCM_encrypt(os.Getenv("ENC_PWD"), pwd, []byte(os.Getenv("ADD_AES")))
 	cusPwd := models.CustomerPrivate{MetaData: pwd}
 
-	regis := models.CustomerRegister{CustomerMain: cusMain, CustomerPrivate: cusPwd, Kecamatan: kec, TanggalLahir: c.PostForm("tanggal_lahir"), Latlong: c.PostForm("latlong"), UnitDefault: c.PostForm("unit_default"), TokenFb: c.PostForm("token_fb"), NamaSupplier: c.PostForm("nama_supplier"), RoleUser: c.PostForm("role_user"), OtpInput: c.PostForm("otp_input")}
+	regis := models.CustomerRegister{CustomerMain: cusMain, CustomerPrivate: cusPwd, Kecamatan: kec, TanggalLahir: c.PostForm("tanggal_lahir"), Latlong: c.PostForm("latlong"), UnitDefault: c.PostForm("unit_default"), TokenFb: c.PostForm("token_fb"), NamaSupplier: c.PostForm("nama_supplier")}
 
 	c.BindJSON(&regis)
 	err := repository.UserRegister(&regis)
@@ -116,5 +116,42 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	setOtp := models.CustomerCheck{RoleUser: c.PostForm("role_user"), OtpInput: "2"}
+
+	err = repository.SetOtpInput(&setOtp, c.PostForm("no_telepon"))
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "False"})
+
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "True"})
+}
+
+func ValidateOtp(c *gin.Context) {
+	var otp models.CustomerCheckOtp
+
+	noTelepon := c.PostForm("no_telepon")
+	otpGenerate := c.PostForm("otp_generate")
+
+	err := repository.CheckOtp(&otp, noTelepon, otpGenerate)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "False"})
+
+		return
+	}
+
+	setOtp := models.CustomerCheck{OtpInput: "1"}
+
+	err = repository.SetOtpInput(&setOtp, noTelepon)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "False"})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "True", "no_telepon": noTelepon})
 }
