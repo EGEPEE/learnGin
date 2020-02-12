@@ -21,14 +21,20 @@ func SetupRouter() *gin.Engine {
 	e.POST("/login", auth.Authenticate)
 	e.POST("/auth/refresh_token", auth.RefreshToken)
 
-	// User
-	e.GET("/get_all_account", controllers.Mobile(auth), controllers.GetAllAcount)
-	e.POST("/check_phonenumber", controllers.Mobile(auth), controllers.CheckPhone)
-	e.POST("/delete_account", controllers.Mobile(auth), controllers.DeleteAccount)
-	e.POST("/check_pin", controllers.Mobile(auth), controllers.CheckPin)
-	e.POST("/set_pin", controllers.Mobile(auth), controllers.SetPin)
-	e.POST("/register", controllers.Mobile(auth), controllers.Register)
-	e.POST("/forgot_pin", controllers.Mobile(auth), controllers.ForgotPin)
+	// USER
+	user := e.Group("/api/usr_userapi")
+	{
+		user.GET("/get_all_account", controllers.Mobile(auth), controllers.GetAllAcount)
+		user.POST("/check_phonenumber", controllers.Mobile(auth), controllers.CheckPhone)
+		user.POST("/delete_account", controllers.Mobile(auth), controllers.DeleteAccount)
+		user.POST("/check_pin", controllers.Mobile(auth), controllers.CheckPin)
+		user.POST("/set_pin", controllers.Mobile(auth), controllers.SetPin)
+		user.POST("/register", controllers.Mobile(auth), controllers.Register)
+		user.POST("/forgot_pin", controllers.Mobile(auth), controllers.ForgotPin)
+	}
 
+	// PICKER
+
+	// BANK SAMPAH
 	return e
 }

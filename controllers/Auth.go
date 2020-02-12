@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/EGEPEE/learnGin/models"
@@ -19,11 +21,14 @@ func NewAuth() (jwt.Auth, error) {
 			}
 			request := req{Username: c.PostForm("username"), Password: c.PostForm("password")}
 			if err := c.ShouldBind(&request); err != nil {
+				fmt.Println("error cek uname & pass")
 				return nil, jwt.ErrorAuthenticationFailed
 			}
 
 			u := models.NaiveDatastore[request.Username] // change here fetching from read datastore
 			if u.Password != request.Password {
+				c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "message": "Username atau password salah."})
+
 				return nil, jwt.ErrorAuthenticationFailed
 			}
 
@@ -32,7 +37,6 @@ func NewAuth() (jwt.Auth, error) {
 				"role":     u.Role,
 			}, nil
 		},
-
 		UserFetcher: func(c *gin.Context, claims jwt.MapClaims) (interface{}, error) {
 			username, ok := claims["username"].(string)
 			if !ok {
