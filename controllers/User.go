@@ -9,6 +9,7 @@ import (
 	"github.com/EGEPEE/learnGin/models"
 	"github.com/EGEPEE/learnGin/repository"
 	"github.com/gin-gonic/gin"
+	jwt "github.com/kyfk/gin-jwt"
 )
 
 func GetAllAcount(c *gin.Context) {
@@ -177,4 +178,11 @@ func ForgotPin(c *gin.Context) {
 
 	c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "True", "data": "Dapat mengganti pin", "user": cusCheck.NoTelepon})
 
+}
+
+func SayHello(c *gin.Context) {
+	u := jwt.User(c).(models.User)
+	c.JSON(http.StatusOK, struct {
+		User models.User `json:"user"`
+	}{u})
 }

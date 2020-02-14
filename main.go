@@ -22,7 +22,7 @@ func main() {
 
 	e := restapi.SetupRouter()
 
-	if err := http.ListenAndServe(":8000", e); err != nil {
+	if err := http.ListenAndServe(":3000", e); err != nil {
 		log.Fatal(err)
 	}
 

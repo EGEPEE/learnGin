@@ -1,80 +1,54 @@
 package controllers
 
 import (
-	"fmt"
-	"net/http"
 	"os"
+	"time"
 
-	"github.com/EGEPEE/learnGin/models"
-
+	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
-	jwt "github.com/kyfk/gin-jwt"
 )
 
-func NewAuth() (jwt.Auth, error) {
-	return jwt.New(jwt.Auth{
-		SecretKey: []byte(os.Getenv("TKN_JWT")),
-		Authenticator: func(c *gin.Context) (jwt.MapClaims, error) {
-			type req struct {
-				Username string `json:"username"`
-				Password string `json:"password"`
-			}
-			request := req{Username: c.PostForm("username"), Password: c.PostForm("password")}
-			if err := c.ShouldBind(&request); err != nil {
-				fmt.Println("error cek uname & pass")
-				return nil, jwt.ErrorAuthenticationFailed
-			}
+type login struct {
+	NoTelepon string `form:"no_telepon json:"no_telepon" binding:"required"`
+	Password  string `form:"password" json:"password" binding:"required"`
+}
 
-			u := models.NaiveDatastore[request.Username] // change here fetching from read datastore
-			if u.Password != request.Password {
-				c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "message": "Username atau password salah."})
+var identityKey = os.Getenv("IDNTY")
 
-				return nil, jwt.ErrorAuthenticationFailed
-			}
-
-			return jwt.MapClaims{
-				"username": u.Username,
-				"role":     u.Role,
-			}, nil
-		},
-		UserFetcher: func(c *gin.Context, claims jwt.MapClaims) (interface{}, error) {
-			username, ok := claims["username"].(string)
-			if !ok {
-				return nil, nil
-			}
-			u, ok := models.NaiveDatastore[username]
-			if !ok {
-				return nil, nil
-			}
-			return u, nil
-		},
+func helloHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	user, _ := c.Get(identityKey)
+	c.JSON(200, gin.H{
+		"userID":   claims[identityKey],
+		"userName": user.(*User).UserName,
+		"text":     "Hello World.",
 	})
 }
 
-func Admin(m jwt.Auth) gin.HandlerFunc {
-	return m.VerifyPerm(func(claims jwt.MapClaims) bool {
-		return role(claims).IsAdmin()
-	})
+// User demo
+type User struct {
+	UserName  string
+	FirstName string
+	LastName  string
 }
 
-func Finance(m jwt.Auth) gin.HandlerFunc {
-	return m.VerifyPerm(func(claims jwt.MapClaims) bool {
-		return role(claims).IsFinance()
-	})
-}
-
-func Mobile(m jwt.Auth) gin.HandlerFunc {
-	return m.VerifyPerm(func(claims jwt.MapClaims) bool {
-		return role(claims).IsMobile()
-	})
-}
-
-func SystemAdmin(m jwt.Auth) gin.HandlerFunc {
-	return m.VerifyPerm(func(claims jwt.MapClaims) bool {
-		return role(claims).IsSystemAdmin()
-	})
-}
-
-func role(claims jwt.MapClaims) models.Role {
-	return models.Role(claims["role"].(float64))
+func NewAuth() {
+	authMiddleware, err := jwt.New(
+		&jwt.GinJWTMiddleware{
+			Realm:      "test zone",
+			Key:        []byte(os.Getenv("SCRT_KEY")),
+			Timeout:    time.Hour,
+			MaxRefresh: time.Hour,
+			IdentityKey: os.Getenv("IDNTY"),
+			PayloadFunc: func(data interface{}) jwt.MapClaims {
+				if v, ok := data.(*User); ok {
+					return jwt.MapClaims{
+						identityKey: v.UserName,
+					}
+				}
+			},
+			IdentityHandler: func(c *gin.Context) interface{} {
+				claims: jwt.ExtractClaims
+			}
+		})
 }

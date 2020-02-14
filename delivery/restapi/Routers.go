@@ -1,40 +1,22 @@
 package restapi
 
 import (
-	"log"
+	"os"
 
-	"github.com/EGEPEE/learnGin/controllers"
 	"github.com/gin-gonic/gin"
-	jwt "github.com/kyfk/gin-jwt"
 )
 
 func SetupRouter() *gin.Engine {
+	auth, err := NewAuth()
 
-	auth, err := controllers.NewAuth()
-	if err != nil {
-		log.Fatal(err)
+	port := os.Getenv("PORT")
+	r := gin.New()
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
+
+	if port == "" {
+		port = "8000"
 	}
 
-	e := gin.New()
-
-	e.Use(jwt.ErrorHandler)
-	e.POST("/login", auth.Authenticate)
-	e.POST("/auth/refresh_token", auth.RefreshToken)
-
-	// USER
-	user := e.Group("/api/usr_userapi")
-	{
-		user.GET("/get_all_account", controllers.Mobile(auth), controllers.GetAllAcount)
-		user.POST("/check_phonenumber", controllers.Mobile(auth), controllers.CheckPhone)
-		user.POST("/delete_account", controllers.Mobile(auth), controllers.DeleteAccount)
-		user.POST("/check_pin", controllers.Mobile(auth), controllers.CheckPin)
-		user.POST("/set_pin", controllers.Mobile(auth), controllers.SetPin)
-		user.POST("/register", controllers.Mobile(auth), controllers.Register)
-		user.POST("/forgot_pin", controllers.Mobile(auth), controllers.ForgotPin)
-	}
-
-	// PICKER
-
-	// BANK SAMPAH
-	return e
+	return r
 }
