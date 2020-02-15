@@ -11,7 +11,7 @@ import (
 	jwt "github.com/kyfk/gin-jwt"
 )
 
-func NewAuth() (jwt.Auth, error) {
+func NewAuth2() (jwt.Auth, error) {
 	return jwt.New(jwt.Auth{
 		SecretKey: []byte(os.Getenv("TKN_JWT")),
 		Authenticator: func(c *gin.Context) (jwt.MapClaims, error) {

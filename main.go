@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/EGEPEE/learnGin/delivery/restapi"
 
@@ -20,9 +21,9 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	e := restapi.SetupRouter()
+	r := restapi.SetupRouter()
 
-	if err := http.ListenAndServe(":3000", e); err != nil {
+	if err := http.ListenAndServe(":"+os.Getenv("PORT"), r); err != nil {
 		log.Fatal(err)
 	}
 

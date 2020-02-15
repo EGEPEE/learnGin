@@ -4,13 +4,13 @@ import (
 	"log"
 
 	"github.com/EGEPEE/learnGin/controllers"
-	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
+	jwt "github.com/kyfk/gin-jwt"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter2() *gin.Engine {
 
-	auth, err := controllers.NewAuth()
+	auth, err := controllers.NewAuth2()
 	if err != nil {
 		log.Fatal(err)
 	}
