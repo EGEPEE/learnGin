@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/EGEPEE/learnGin/models"
-
 	"github.com/gin-gonic/gin"
 	jwt "github.com/kyfk/gin-jwt"
 )
@@ -51,31 +50,30 @@ func NewAuth2() (jwt.Auth, error) {
 	})
 }
 
-func Admin(m jwt.Auth) gin.HandlerFunc {
-	return m.VerifyPerm(func(claims jwt.MapClaims) bool {
-		return role(claims).IsAdmin()
-	})
-}
+// func Admin2(m jwt.Auth) gin.HandlerFunc {
+// 	return m.VerifyPerm(func(claims jwt.MapClaims) bool {
+// 		return role(claims).IsAdmin()
+// 	})
+// }
 
-func Finance(m jwt.Auth) gin.HandlerFunc {
-	return m.VerifyPerm(func(claims jwt.MapClaims) bool {
-		return role(claims).IsFinance()
-	})
-}
+// func Finance2(m jwt.Auth) gin.HandlerFunc {
+// 	return m.VerifyPerm(func(claims jwt.MapClaims) bool {
+// 		return role(claims).IsFinance()
+// 	})
+// }
 
-func Mobile(m jwt.Auth) gin.HandlerFunc {
-	return m.VerifyPerm(func(claims jwt.MapClaims) bool {
-		fmt.Println(claims)
-		return role(claims).IsMobile()
-	})
-}
+// func Mobile2(m jwt.Auth) gin.HandlerFunc {
+// 	return m.VerifyPerm(func(claims jwt.MapClaims) bool {
+// 		return role(claims).IsMobile()
+// 	})
+// }
 
-func SystemAdmin(m jwt.Auth) gin.HandlerFunc {
-	return m.VerifyPerm(func(claims jwt.MapClaims) bool {
-		return role(claims).IsSystemAdmin()
-	})
-}
+// func SystemAdmin2(m jwt.Auth) gin.HandlerFunc {
+// 	return m.VerifyPerm(func(claims jwt.MapClaims) bool {
+// 		return role(claims).IsSystemAdmin()
+// 	})
+// }
 
-func role(claims jwt.MapClaims) models.Role {
-	return models.Role(claims["role"].(float64))
-}
+// func role2(claims jwt.MapClaims) models.Role {
+// 	return models.Role(claims["role"].(float64))
+// }

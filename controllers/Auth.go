@@ -1,9 +1,10 @@
 package controllers
 
 import (
-	"os"
+	"fmt"
 	"time"
 
+	"github.com/EGEPEE/learnGin/models"
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 )
@@ -13,34 +14,32 @@ type login struct {
 	Password string `form:"password" json:"password" binding:"required"`
 }
 
-var identityKey = os.Getenv("IDNTY")
+var identityKey = "id"
 
 func HelloHandler(c *gin.Context) {
-	claims := jwt.ExtractClaims(c)
-	user, _ := c.Get(identityKey)
-	c.JSON(200, gin.H{
-		"userID":   claims[identityKey],
-		"Username": user.(*User).Username,
-		"text":     "Hello World.",
-	})
-}
-
-// User demo
-type User struct {
-	Username  string
-	FirstName string
-	LastName  string
+	fmt.Println(c)
+	// claims := jwt.ExtractClaims(c)
+	// fmt.Println(claims)
+	// user, _ := c.Get(identityKey)
+	// fmt.Println(user)
+	// c.JSON(200, gin.H{
+	// 	"userID":   claims[identityKey],
+	// 	"userName": user.(*models.User).Username,
+	// 	// "email":    user.(*models.User).Email,
+	// 	// "role":     user.(*models.User).Role,
+	// 	"texting": "Hello World.",
+	// })
 }
 
 func NewAuth() (authMiddleware *jwt.GinJWTMiddleware, err error) {
 	return jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
-		Key:         []byte(os.Getenv("SCRT_KEY")),
+		Key:         []byte("secret key"),
 		Timeout:     time.Hour,
 		MaxRefresh:  time.Hour,
-		IdentityKey: os.Getenv("IDNTY"),
+		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
-			if v, ok := data.(*User); ok {
+			if v, ok := data.(*models.User); ok {
 				return jwt.MapClaims{
 					identityKey: v.Username,
 				}
@@ -49,43 +48,67 @@ func NewAuth() (authMiddleware *jwt.GinJWTMiddleware, err error) {
 		},
 		IdentityHandler: func(c *gin.Context) interface{} {
 			claims := jwt.ExtractClaims(c)
-			return &User{
+			u := models.NaiveDatastore[claims[identityKey].(string)]
+			return &models.User{
 				Username: claims[identityKey].(string),
+				Role:     u.Role,
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
-			var loginVals login
-			if err := c.ShouldBind(&loginVals); err != nil {
-				return "", jwt.ErrMissingLoginValues
-			}
-			Username := loginVals.Username
-			password := loginVals.Password
-
-			if Username == "mobile" && password == "mobile" {
-				return &User{
-					Username:  Username,
-					LastName:  "Prasetianti",
-					FirstName: "Ega",
-				}, nil
+			request := login{Username: c.PostForm("username"), Password: c.PostForm("password")}
+			if err := c.ShouldBind(&request); err != nil {
+				return nil, jwt.ErrMissingLoginValues
 			}
 
-			return nil, jwt.ErrFailedAuthentication
-		},
-		Authorizator: func(data interface{}, c *gin.Context) bool {
-			if v, ok := data.(*User); ok && v.Username == "mobile" {
-				return true
+			u := models.NaiveDatastore[request.Username]
+			if u.Password != request.Password {
+				return nil, jwt.ErrFailedAuthentication
 			}
 
-			return false
+			return &u, nil
 		},
-		Unauthorized: func(c *gin.Context, code int, message string) {
-			c.JSON(code, gin.H{
-				"code":    code,
-				"message": message,
-			})
-		},
-		TokenLookup:   "header: Authorization, query: token, cookie: jwt",
+		// Authorizator: func(data interface{}, c *gin.Context) bool {
+		// 	validatorRole := checkRole(data)
+
+		// 	return validatorRole
+		// },
+		// Unauthorized: func(c *gin.Context, code int, message string) {
+		// 	c.JSON(code, gin.H{
+		// 		"code":    code,
+		// 		"message": message,
+		// 	})
+		// },
+		// Unauthorized: func(c *gin.Context, code int, message string) {
+		// 	c.JSON(code, gin.H{
+		// 		"code":    code,
+		// 		"message": message,
+		// 	})
+		// },
+
+		// TokenLookup is a string in the form of "<source>:<name>" that is used
+		// to extract token from the request.
+		// Optional. Default value "header:Authorization".
+		// Possible values:
+		// - "header:<name>"
+		// - "query:<name>"
+		// - "cookie:<name>"
+		// - "param:<name>"
+		TokenLookup: "header: Authorization, query: token, cookie: jwt",
+		// TokenLookup: "query:token",
+		// TokenLookup: "cookie:token",
+
+		// TokenHeadName is a string in the header. Default value is "Bearer"
 		TokenHeadName: "Bearer",
-		TimeFunc:      time.Now,
+
+		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
+		TimeFunc: time.Now,
 	})
+}
+
+func Admin(claims jwt.MapClaims) bool {
+	fmt.Println(claims)
+	// return authMiddleware.VerifyPerm(func(claims jwt.MapClaims) bool {
+	// return role(claims).IsAdmin()
+	// })
+	return true
 }

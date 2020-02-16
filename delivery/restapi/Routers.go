@@ -21,18 +21,18 @@ func SetupRouter() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	r.POST("/login", authMiddleware.LoginHandler)
+	// Refresh time can be longer than token timeout
+	r.GET("/refresh_token", authMiddleware.RefreshHandler)
+
 	r.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
 		claims := jwt.ExtractClaims(c)
 		log.Printf("NoRoute claims: %#v\n", claims)
 		c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
 	})
 
-	auth := r.Group("/auth")
-	// Refresh time can be longer than token timeout
-	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
-	auth.Use(authMiddleware.MiddlewareFunc())
+	user := r.Group("/user")
 	{
-		auth.GET("/hello", controllers.HelloHandler)
+		user.GET("/hello", controllers.Admin(), controllers.HelloHandler)
 	}
 
 	return r
