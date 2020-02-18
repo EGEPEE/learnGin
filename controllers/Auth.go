@@ -10,6 +10,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type Role int
+
+const (
+	ADMIN        Role = 0x1
+	FINANCE      Role = 0x1 << 1
+	MOBILE       Role = 0x1 << 2
+	SYSTEM_ADMIN Role = 0x1 << 2
+)
+
 type login struct {
 	Username string `form:"username" json:"username" binding:"required"`
 	Password string `form:"password" json:"password" binding:"required"`
@@ -26,13 +35,6 @@ func HelloHandler(c *gin.Context) {
 		"role":     user.(*models.User).Role,
 		"text":     "Hello World.",
 	})
-}
-
-// User demo
-type User struct {
-	Username  string
-	FirstName string
-	LastName  string
 }
 
 func NewAuth() (authMiddleware *jwt.GinJWTMiddleware, err error) {
@@ -93,6 +95,7 @@ func NewAuth() (authMiddleware *jwt.GinJWTMiddleware, err error) {
 
 func IsAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fmt.Println(c)
+		user, _ := c.Get(identityKey)
+		fmt.Println(user.(*models.User).Role)
 	}
 }
