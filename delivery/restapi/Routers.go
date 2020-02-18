@@ -32,7 +32,7 @@ func SetupRouter() *gin.Engine {
 	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
 	auth.Use(authMiddleware.MiddlewareFunc())
 	{
-		auth.GET("/hello", controllers.HelloHandler)
+		auth.GET("/hello", controllers.IsAdmin(), controllers.HelloHandler)
 	}
 
 	return r
