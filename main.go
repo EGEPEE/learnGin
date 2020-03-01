@@ -1,30 +1,37 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/EGEPEE/learnGin/delivery/restapi"
-
-	"github.com/EGEPEE/learnGin/repository"
-	"github.com/joho/godotenv"
+	"github.com/EGEPEE/learnGin/models"
 )
 
-func init() {
-	repository.Open()
-}
-
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	// err := inject.LoadCasbinPolicyData()
+	// if err != nil {
+	// 	panic("Kesalahan memuat data kebijakan casbin: " + err.Error())
+	// }
+
+	routersInit := restapi.InitRouter()
+	readTimeout := models.ServerSetting.ReadTimeout
+	writeTimeout := models.ServerSetting.WriteTimeout
+
+	endPoint := fmt.Sprintf(":%d", models.ServerSetting.HttpPort)
+	maxHeaderBytes := 1 << 20
+
+	server := &http.Server{
+		Addr:           endPoint,
+		Handler:        routersInit,
+		ReadTimeout:    readTimeout,
+		WriteTimeout:   writeTimeout,
+		MaxHeaderBytes: maxHeaderBytes,
 	}
 
-	r := restapi.SetupRouter()
+	log.Printf("[info] start http server listening %s", endPoint)
 
-	if err := http.ListenAndServe(":"+os.Getenv("PORT"), r); err != nil {
-		log.Fatal(err)
-	}
+	_ = server.ListenAndServe()
 
 }
