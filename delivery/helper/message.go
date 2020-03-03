@@ -1,7 +1,7 @@
 package helper
 
 import (
-	"github.com/EDDYCJY/go-gin-example/pkg/logging"
+	"github.com/EGEPEE/learnGin/delivery/helper/logging"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 )

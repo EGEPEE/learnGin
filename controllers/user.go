@@ -10,10 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (a *models.UserPrivate) CheckUser(bool, error) {
-	return models.CheckUser(a.Username, util.EncodeMD5(a.Password))
-}
-
 func Auth(c *gin.Context) {
 
 	appG := helper.Gin{C: c}
@@ -35,7 +31,11 @@ func Auth(c *gin.Context) {
 		return
 	}
 
-	userMain := models.UserMain{NoTelepon: reqInfo.NoTelepon}
-	userService := models.UserPrivate{UserMain: userMain, MetaData: reqInfo.Password}
-	isExist, err := CheckUser(&userService)
+	// userMain := models.UserMain{NoTelepon: reqInfo.NoTelepon}
+	// userService := models.UserPrivate{UserMain: userMain, MetaData: reqInfo.Password}
+	// isExist, err := CheckUser(&userService)
+}
+
+func (a *User) Check() (bool, error) {
+	return models.CheckUser(a.Username, util.EncodeMD5(a.Password))
 }
